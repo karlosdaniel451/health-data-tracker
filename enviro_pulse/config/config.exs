@@ -7,6 +7,19 @@
 # General application configuration
 import Config
 
+config :enviro_pulse, :pow_assent,
+  providers: [
+    google: [
+      client_id: System.fetch_env!("GOOGLE_CLIENT_ID"),
+      client_secret: System.fetch_env!("GOOGLE_CLIENT_SECRET"),
+      strategy: Assent.Strategy.Google,
+      authorization_params: [
+        access_type: "offline",
+        scope: "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile"
+      ]
+    ]
+  ]
+
 config :enviro_pulse,
   ecto_repos: [EnviroPulse.Repo],
   generators: [timestamp_type: :utc_datetime, binary_id: true]

@@ -131,5 +131,6 @@
     <orderEntry type="library" name="hpax" level="project" />
     <orderEntry type="library" name="mox" level="project" />
     <orderEntry type="library" name="hpack" level="project" />
+    <orderEntry type="library" name="pow" level="project" />
   </component>
 </module>
