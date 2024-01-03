@@ -1,6 +1,7 @@
 defmodule EnviroPulseWeb.Router do
   use EnviroPulseWeb, :router
   use Pow.Phoenix.Router
+  use PowAssent.Phoenix.Router
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -15,10 +16,24 @@ defmodule EnviroPulseWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :skip_csrf_protection do
+    plug :accepts, ["html"]
+    plug :fetch_session
+    plug :fetch_flash
+    plug :put_secure_browser_headers
+  end
+
+  scope "/" do
+    pipe_through :skip_csrf_protection
+
+    pow_assent_authorization_post_callback_routes()
+  end
+
   scope "/" do
     pipe_through :browser
 
     pow_routes()
+    pow_assent_routes()
   end
 
   scope "/", EnviroPulseWeb do

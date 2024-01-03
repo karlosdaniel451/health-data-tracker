@@ -131,5 +131,12 @@
     <orderEntry type="library" name="hpax" level="project" />
     <orderEntry type="library" name="mox" level="project" />
     <orderEntry type="library" name="hpack" level="project" />
+    <orderEntry type="library" name="pow" level="project" />
+    <orderEntry type="library" name="pow_assent" level="project" />
+    <orderEntry type="library" name="certifi" level="project" />
+    <orderEntry type="library" name="ssl_verify_fun" level="project" />
+    <orderEntry type="library" name="assent" level="project" />
+    <orderEntry type="library" name="test_server" level="project" />
+    <orderEntry type="library" name="jose" level="project" />
   </component>
 </module>

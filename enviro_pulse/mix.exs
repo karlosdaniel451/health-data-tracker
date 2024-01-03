@@ -51,7 +51,11 @@ defmodule EnviroPulse.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
       {:plug_cowboy, "~> 2.5"},
-      {:pow, "~> 1.0.34"}
+      {:pow, "~> 1.0.34"},
+      {:pow_assent, "~> 0.4.17"},
+      # Optional, but recommended for SSL validation with :httpc adapter
+      {:certifi, "~> 2.4"},
+      {:ssl_verify_fun, "~> 1.1"},
     ]
   end
 
