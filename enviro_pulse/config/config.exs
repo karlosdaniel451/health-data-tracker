@@ -75,6 +75,7 @@ config :logger, :console,
 config :phoenix, :json_library, Jason
 
 config :enviro_pulse, :pow,
+  web_module: EnviroPulseWeb,
   user: EnviroPulse.Users.User,
   repo: EnviroPulse.Repo
 
