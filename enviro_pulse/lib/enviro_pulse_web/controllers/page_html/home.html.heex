@@ -219,4 +219,6 @@
       </div>
     </div>
   </div>
+  <%= for link <- PowAssent.Phoenix.ViewHelpers.provider_links(@conn),
+      do: Phoenix.HTML.Tag.content_tag(:span, link) %>
 </div>
