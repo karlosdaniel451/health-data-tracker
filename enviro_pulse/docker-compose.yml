@@ -1,0 +1,53 @@
+# Version of docker-compose.
+version: "3.8"
+
+networks:
+  app-network:
+
+volumes:
+  data:
+
+# Containers we're going to run.
+services:
+  # Our container containing a Phoenix application.
+  app:
+    build:
+      # Here we define that it should build from the current directory.
+      context: .
+    environment:
+      # Variables to connect to our Postgres server.
+      DB_USER: postgres
+      DB_PASSWORD: development
+      DB_NAME: enviro_pulse_dev
+      DB_PORT: 5432
+      DB_HOST: db
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+    ports:
+      - "4000:4000"
+    command: >
+      /bin/sh ./docker_dev_start.sh
+    networks:
+      - app-network
+    depends_on:
+      # The DB container needs to be started before we start this container.
+      - db
+
+  db:
+    # We use the predefined Postgres image.
+    image: postgres:16.1-bullseye
+    environment:
+      # Set user/password for Postgres.
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: development
+      POSTGRES_DB: enviro_pulse_dev
+      # Set a path where Postgres should store the data.
+      PGDATA: /var/lib/postgresql/data/pgdata
+    restart: always
+    volumes:
+      - data:/var/lib/postgresql/data
+      - ./config/postgres/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
+      - type: tmpfs
+        target: /dev/shm
+    networks:
+      - app-network

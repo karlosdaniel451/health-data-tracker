@@ -56,6 +56,7 @@ defmodule EnviroPulse.MixProject do
       # Optional, but recommended for SSL validation with :httpc adapter
       {:certifi, "~> 2.4"},
       {:ssl_verify_fun, "~> 1.1"},
+      {:dotenvy, "~> 0.8.0"}
     ]
   end
 

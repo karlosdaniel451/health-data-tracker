@@ -138,5 +138,6 @@
     <orderEntry type="library" name="assent" level="project" />
     <orderEntry type="library" name="test_server" level="project" />
     <orderEntry type="library" name="jose" level="project" />
+    <orderEntry type="library" name="dotenvy" level="project" />
   </component>
 </module>
