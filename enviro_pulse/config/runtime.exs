@@ -16,6 +16,24 @@ import Config
 #
 # Alternatively, you can use `mix phx.gen.release` to generate a `bin/server`
 # script that automatically sets the env var above.
+
+import Dotenvy
+
+source!([".env", System.get_env()])
+
+config :enviro_pulse, :pow_assent,
+       providers: [
+         google: [
+           client_id: env!("GOOGLE_CLIENT_ID"),
+           client_secret: env!("GOOGLE_CLIENT_SECRET"),
+           strategy: Assent.Strategy.Google,
+           authorization_params: [
+             access_type: "offline",
+             scope: "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile"
+           ]
+         ]
+       ]
+
 if System.get_env("PHX_SERVER") do
   config :enviro_pulse, EnviroPulseWeb.Endpoint, server: true
 end
