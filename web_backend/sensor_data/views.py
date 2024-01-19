@@ -47,11 +47,8 @@ class SensorDataViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(timestamp__gte=start)
 
         if end_date:
-            # Below condition is for if user omits seconds, maximize seconds to get all data from that minute
-            if len(end_date) == 16:
-                end_date += ":59"
-
             end = parse_datetime(end_date)
+            end = end.replace(second=59)
             queryset = queryset.filter(timestamp__lte=end)
 
         # Apply filters with conditions
