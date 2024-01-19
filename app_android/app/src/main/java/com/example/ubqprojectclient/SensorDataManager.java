@@ -1,4 +1,4 @@
-package com.example.basicandroidmqttclient;
+package com.example.ubqprojectclient;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

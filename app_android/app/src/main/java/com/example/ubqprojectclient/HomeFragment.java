@@ -1,4 +1,4 @@
-package com.example.basicandroidmqttclient;
+package com.example.ubqprojectclient;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Basic Android MQTT Client"
+rootProject.name = "Final project ubiquitous"
 include ':app'

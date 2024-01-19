@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Basic Android MQTT Client</string>
+    <string name="app_name">Final project ubiquitous</string>
     <string name="temperature_data">Temperature</string>
     <string name="data_report">Reports</string>
     <string name="noise_data">Noise</string>

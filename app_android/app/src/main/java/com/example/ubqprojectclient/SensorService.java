@@ -1,4 +1,4 @@
-package com.example.basicandroidmqttclient;
+package com.example.ubqprojectclient;
 
 import android.Manifest;
 import android.app.Notification;

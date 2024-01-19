@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.basicandroidmqttclient'
+    namespace 'com.example.ubqprojectclient'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.example.basicandroidmqttclient"
+        applicationId "com.example.ubqprojectclient"
         minSdk 23
         targetSdk 34
         versionCode 1
