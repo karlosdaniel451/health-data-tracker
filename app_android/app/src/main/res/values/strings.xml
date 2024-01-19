@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Basic Android MQTT Client</string>
+    <string name="temperature_data">Temperature</string>
+    <string name="data_report">Reports</string>
+    <string name="noise_data">Noise</string>
+    <string-array name="filter_options_array">
+        <item>Greater than</item>
+        <item>Equals</item>
+        <item>Lower than</item>
+    </string-array>
+</resources>
