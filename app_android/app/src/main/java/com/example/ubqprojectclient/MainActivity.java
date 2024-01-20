@@ -68,6 +68,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (!permissionsNeeded.isEmpty()) {
             ActivityCompat.requestPermissions(this, permissionsNeeded.toArray(new String[0]), MULTIPLE_PERMISSIONS_REQUEST_CODE);
+        } else {
+            Intent serviceIntent = new Intent(this, SensorService.class);
+            ContextCompat.startForegroundService(this, serviceIntent);
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

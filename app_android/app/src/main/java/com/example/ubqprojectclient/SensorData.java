@@ -3,6 +3,8 @@ package com.example.ubqprojectclient;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -14,7 +16,7 @@ public class SensorData {
     private Integer heartFrequency;
 
     public SensorData(Date timestamp, BigDecimal temperature, BigDecimal humidity, BigDecimal noiseLevel, Integer heartFrequency) {
-        this.timestamp = SensorData.dateToTimestampString(timestamp);
+        this.timestamp = DateUtils.dateToString(timestamp);
         this.temperature = temperature;
         this.humidity = humidity;
         this.noiseLevel = noiseLevel;
@@ -22,7 +24,7 @@ public class SensorData {
     }
 
     public SensorData(Date timestamp, BigDecimal temperature, BigDecimal humidity, BigDecimal noiseLevel) {
-        this.timestamp = SensorData.dateToTimestampString(timestamp);
+        this.timestamp = DateUtils.dateToString(timestamp);
         this.temperature = temperature;
         this.humidity = humidity;
         this.noiseLevel = noiseLevel;
@@ -33,25 +35,6 @@ public class SensorData {
         this.temperature = temperature;
         this.humidity = humidity;
         this.noiseLevel = noiseLevel;
-    }
-
-    public static Date timestampStringToDate(String timestampString) {
-        SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-        Date timestamp = null;
-        try {
-            timestamp = isoFormat.parse(timestampString);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return timestamp;
-    }
-
-    public static String dateToTimestampString(Date timestamp) {
-        SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        isoFormat.setTimeZone(TimeZone.getDefault());
-        return isoFormat.format(timestamp);
     }
 
     // Getters
@@ -73,5 +56,21 @@ public class SensorData {
 
     public Integer getHeartFrequency() {
         return heartFrequency;
+    }
+
+    public BigDecimal getSensorValue(String dashboardTitle) {
+        switch (dashboardTitle) {
+            case "Temperature":
+                return this.getTemperature();
+            case "Humidity":
+                return this.getHumidity();
+            case "Noise Level":
+                return this.getNoiseLevel();
+            case "Heart Frequency":
+                if (this.getHeartFrequency() != null) {
+                    return BigDecimal.valueOf(this.getHeartFrequency());
+                }
+        }
+        return null;
     }
 }

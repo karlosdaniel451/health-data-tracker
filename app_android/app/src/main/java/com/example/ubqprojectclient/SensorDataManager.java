@@ -9,10 +9,8 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -76,19 +74,19 @@ public class SensorDataManager {
             BigDecimal temperature, String temperatureCondition,
             BigDecimal humidity, String humidityCondition,
             BigDecimal noise, String noiseCondition,
-            Integer heartFrequency, String heartFrequencyCondition
-    ) {
+            Integer heartFrequency, String heartFrequencyCondition,
+            boolean paginated) {
         Future<ArrayList<SensorData>> future = executorService.submit(() -> getSensorDataRequest(
                 startDate, endDate,
                 temperature, temperatureCondition,
                 humidity, humidityCondition,
                 noise, noiseCondition,
-                heartFrequency, heartFrequencyCondition));
+                heartFrequency, heartFrequencyCondition, paginated));
 
         ArrayList<SensorData> sensorData = new ArrayList<>();
         try {
             sensorData = future.get();
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (InterruptedException | ExecutionException | RuntimeException e) {
         }
         return sensorData;
     }
@@ -99,13 +97,19 @@ public class SensorDataManager {
             BigDecimal temperature, String temperatureCondition,
             BigDecimal humidity, String humidityCondition,
             BigDecimal noise, String noiseCondition,
-            Integer heartFrequency, String heartFrequencyCondition) {
+            Integer heartFrequency, String heartFrequencyCondition, boolean paginated) {
         ArrayList<SensorData> sensorData = new ArrayList<>();
         try {
             // Construct the URL with query parameters
             StringBuilder urlBuilder = new StringBuilder(API_URL);
-            urlBuilder.append("?page=").append(SensorDataManager.currentPage.toString());
-            urlBuilder.append("&page_size=").append(SensorDataManager.pageSize.toString());
+
+            if (paginated) {
+                urlBuilder.append("?page=").append(SensorDataManager.currentPage.toString());
+                urlBuilder.append("&page_size=").append(SensorDataManager.pageSize.toString());
+            } else {
+                urlBuilder.append("?page=").append("1");
+                urlBuilder.append("&page_size=").append("100000");
+            }
 
             if (startDate != null && !startDate.isEmpty()) {
                 urlBuilder.append("&start_date=").append(startDate);
@@ -173,12 +177,18 @@ public class SensorDataManager {
             JSONArray sensorDataArray = jsonResponse.getJSONArray("results");
             for (int i = 0; i < sensorDataArray.length(); i++) {
                 JSONObject jsonSensorData = sensorDataArray.getJSONObject(i);
-                Date date = SensorData.timestampStringToDate(jsonSensorData.getString("timestamp"));
+
+                Integer hFrequency = null;
+                if (!jsonSensorData.isNull("heart_frequency")) {
+                    hFrequency = jsonSensorData.getInt("heart_frequency");
+                }
+                Date date = DateUtils.dateStringToDate(jsonSensorData.getString("timestamp"));
                 sensorData.add(new SensorData(
                         date,
                         BigDecimal.valueOf(jsonSensorData.getDouble("temperature")),
                         BigDecimal.valueOf(jsonSensorData.getDouble("humidity")),
-                        BigDecimal.valueOf(jsonSensorData.getDouble("noise_level"))
+                        BigDecimal.valueOf(jsonSensorData.getDouble("noise_level")),
+                        hFrequency
                 ));
             }
         } catch (Exception e) {
