@@ -1,4 +1,4 @@
-package com.example.basicandroidmqttclient;
+package com.example.ubqprojectclient;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -245,8 +245,8 @@ public class ReportFragment extends Fragment {
                 filterValues.getTemperature(), filterValues.getTemperatureCondition(),
                 filterValues.getHumidity(), filterValues.getHumidityCondition(),
                 filterValues.getNoise(), filterValues.getNoiseCondition(),
-                filterValues.getHeartFrequency(), filterValues.getHeartFrequencyCondition()
-        );
+                filterValues.getHeartFrequency(), filterValues.getHeartFrequencyCondition(),
+                true);
 
         nextPageButton.setEnabled(SensorDataManager.hasNext);
         previousPageButton.setEnabled(SensorDataManager.hasPrevious);
@@ -268,7 +268,12 @@ public class ReportFragment extends Fragment {
             row.addView(makeTextView(formattedTemperature + "ºC"));
             row.addView(makeTextView(formattedHumidity + "%"));
             row.addView(makeTextView(formattedNoiseLevel + "dB"));
-            row.addView(makeTextView(formattedHeartFrequency));
+
+            if (formattedHeartFrequency.equals("N/A")) {
+                row.addView(makeTextView(formattedHeartFrequency));
+            } else {
+                row.addView(makeTextView(formattedHeartFrequency + "bpm"));
+            }
 
             tableLayout.addView(row);
         }
@@ -278,7 +283,6 @@ public class ReportFragment extends Fragment {
         switch (spinnerSelection) {
             case "Greater than":
                 return "gt";
-
             case "Equals":
                 return "eq";
             case "Lower than":

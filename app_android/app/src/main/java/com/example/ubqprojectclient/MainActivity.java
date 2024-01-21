@@ -1,4 +1,4 @@
-package com.example.basicandroidmqttclient;
+package com.example.ubqprojectclient;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -68,6 +68,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (!permissionsNeeded.isEmpty()) {
             ActivityCompat.requestPermissions(this, permissionsNeeded.toArray(new String[0]), MULTIPLE_PERMISSIONS_REQUEST_CODE);
+        } else {
+            Intent serviceIntent = new Intent(this, SensorService.class);
+            ContextCompat.startForegroundService(this, serviceIntent);
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -78,16 +81,28 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         }
-
-        Intent serviceIntent = new Intent(this, SensorService.class);
-        ContextCompat.startForegroundService(this, serviceIntent);
     }
 
     int MULTIPLE_PERMISSIONS_REQUEST_CODE = 84984984;
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == MULTIPLE_PERMISSIONS_REQUEST_CODE) {
+            boolean allPermissionsGranted = true;
+            for (int grantResult : grantResults) {
+                if (grantResult != PackageManager.PERMISSION_GRANTED) {
+                    allPermissionsGranted = false;
+                    break;
+                }
+            }
+
+            if (allPermissionsGranted) {
+                Intent serviceIntent = new Intent(this, SensorService.class);
+                ContextCompat.startForegroundService(this, serviceIntent);
+            } else {
+            }
+        }
     }
 
     @Override

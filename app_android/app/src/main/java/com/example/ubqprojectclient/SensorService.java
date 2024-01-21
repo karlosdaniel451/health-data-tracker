@@ -1,4 +1,4 @@
-package com.example.basicandroidmqttclient;
+package com.example.ubqprojectclient;
 
 import android.Manifest;
 import android.app.Notification;
@@ -8,7 +8,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -37,15 +36,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Random;
-import java.util.TimeZone;
 
 public class SensorService extends Service {
     private SensorManager sensorManager;
@@ -108,9 +99,9 @@ public class SensorService extends Service {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
 
         return new NotificationCompat.Builder(this, "sensorAlerts")
-                .setContentTitle("Sensor Service")
-                .setContentText("Running...")
-                .setSmallIcon(R.drawable.home) // Replace with your notification icon
+                .setContentTitle("EnviroPulse")
+                .setContentText("Monitoring...")
+                .setSmallIcon(R.drawable.baseline_device_thermostat_144) // Replace with your notification icon
                 .setContentIntent(pendingIntent)
                 .build();
     }
@@ -154,7 +145,7 @@ public class SensorService extends Service {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "sensorAlerts")
                 .setContentTitle(title)
                 .setContentText(message)
-                .setSmallIcon(R.drawable.home) // replace with your icon
+                .setSmallIcon(R.drawable.baseline_device_thermostat_144) // replace with your icon
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
         notificationManager.notify(new Random().nextInt(), builder.build());
@@ -177,7 +168,7 @@ public class SensorService extends Service {
             // Check if both readings are available
             if (dataUpdated && lastTemperature != null && lastHumidity != null) {
                 if (lastNoise.compareTo(BigDecimal.ZERO) != 0) {
-                    SensorDataManager.saveSensorData(new SensorData(getNowDateInUTC(), lastTemperature, lastHumidity, lastNoise));
+                    SensorDataManager.saveSensorData(new SensorData(DateUtils.getNowDateStringInUTC(), lastTemperature, lastHumidity, lastNoise));
                     stopAudioRecording();
                 }
 
@@ -192,11 +183,6 @@ public class SensorService extends Service {
         }
     };
 
-    private String getNowDateInUTC() {
-        SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return isoFormat.format(new Date());
-    }
     private final Runnable collectSensorDataRunnable = new Runnable() {
         @Override
         public void run() {
@@ -323,7 +309,7 @@ public class SensorService extends Service {
             lastHumidity = humidityBD.setScale(2, RoundingMode.HALF_UP);
 
             if (lastNoise.compareTo(BigDecimal.ZERO) != 0) {
-                SensorDataManager.saveSensorData(new SensorData(getNowDateInUTC(), lastTemperature, lastHumidity, lastNoise));
+                SensorDataManager.saveSensorData(new SensorData(DateUtils.getNowDateStringInUTC(), lastTemperature, lastHumidity, lastNoise));
                 stopAudioRecording();
             }
         } catch (JSONException e) {
