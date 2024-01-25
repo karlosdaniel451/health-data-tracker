@@ -90,6 +90,8 @@ watch(() => props.sessionQuery, (newValue) => {
 
       if (params.get("page") !== null) {
         firstRow.value = (parseInt(params.get("page")) - 1) * 10;
+        activePage.value = params.get("page");
+        queryString.value = "?page=" + activePage.value;
       } else {
         updateQueryString();
       }
@@ -123,8 +125,23 @@ watch(() => props.sessionQuery, (newValue) => {
             case "lt":
               condition = FilterMatchMode.LESS_THAN;
           }
+          let paramValue = params.get(environmentalVariable)
+          if (paramValue.includes(".")) {
+            paramValue = paramValue.split(".")
+            if (paramValue[0].length === 1) {
+              paramValue[0] = "0" + paramValue[0];
+            }
+            paramValue = paramValue[0] + paramValue[1];
+          } else {
+            if (paramValue.length === 1) {
+              paramValue = "00" + paramValue;
+            } else if (paramValue.length === 2) {
+              paramValue = "0" + paramValue;
+            }
+          }
+          console.log(environmentalVariable, paramValue)
           filters.value[environmentalVariable].constraints[0] = {
-            value: params.get(environmentalVariable),
+            value: paramValue,
             matchMode: condition
           };
         }
@@ -147,7 +164,8 @@ const filterOptions = ref([
 const activePage = ref(1);
 const queryString = ref("");
 
-const updateQueryString = (event) => {
+const updateQueryString = async (event) => {
+  console.log(event)
   if (event.page !== undefined) {
     activePage.value = event.page + 1;
   }
@@ -177,14 +195,14 @@ const updateQueryString = (event) => {
           params.set(queryStringKey + "_condition", condition);
           params.set(queryStringKey, value);
         }
-      } else{
+      } else {
         params.delete(queryStringKey);
       }
     }
   }
   queryString.value = "?" + params.toString();
   queryString.value = queryString.value.replaceAll("%3A", ":");
-  SessionQueriesService.saveSessionQuery({last_report_query: queryString.value});
+  await SessionQueriesService.saveSessionQuery({last_report_query: queryString.value});
 };
 
 const formatDate = (date) => {
@@ -238,8 +256,11 @@ const initFilters = () => {
 
 
 initFilters();
-const clearFilter = () => {
+
+const clearFilter = async () => {
   initFilters();
+  await updateQueryString({page: 0});
+  window.location.reload();
 };
 </script>
 
