@@ -1,19 +1,26 @@
 <template>
   <div class="charts-container">
-    <SensorDataChart sensorName="Temperature" />
-    <SensorDataChart sensorName="Humidity"/>
-    <SensorDataChart sensorName="Noise Level"/>
-    <SensorDataChart sensorName="Heart Frequency"/>
+    <SensorDataChart sensorName="Temperature" :sessionQuery="sessionQuery"/>
+    <SensorDataChart sensorName="Humidity" :sessionQuery="sessionQuery"/>
+    <SensorDataChart sensorName="Noise Level" :sessionQuery="sessionQuery"/>
+    <SensorDataChart sensorName="Heart Frequency" :sessionQuery="sessionQuery"/>
   </div>
-  <SensorDataTable :sensorData="sensorData" />
+  <SensorDataTable :sensorData="sensorData" :sessionQuery="sessionQuery"/>
 </template>
 
 <script setup>
 import {onBeforeMount, ref} from "vue";
-import SensorService from "@/SensorService";
+import SensorService from "@/services/SensorService";
+import SessionQueriesService from "@/services/SessionQueriesService";
 
 const sensorData = ref([]);
+const sessionQuery = ref();
 onBeforeMount(() => {
+  SessionQueriesService.fetchSessionQueries()
+      .then(data => {
+        sessionQuery.value = data[0];
+      })
+      .catch(error => console.error(error));
   SensorService.fetchSensorData()
       .then(data => {
         sensorData.value = data["results"].map(item => ({

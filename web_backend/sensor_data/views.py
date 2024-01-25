@@ -9,7 +9,6 @@ from django.utils.dateparse import parse_datetime
 class StandardResultsSetPagination(pagination.PageNumberPagination):
     page_size_query_param = 'page_size'
     page_size = 50
-    max_page_size = 100
 
 
 class SensorDataViewSet(viewsets.ModelViewSet):
@@ -44,6 +43,7 @@ class SensorDataViewSet(viewsets.ModelViewSet):
         # Date range filtering
         if start_date:
             start = parse_datetime(start_date)
+            start = start.replace(second=0)
             queryset = queryset.filter(timestamp__gte=start)
 
         if end_date:

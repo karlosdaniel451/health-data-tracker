@@ -16,14 +16,16 @@
 
 <script setup>
 import 'chartjs-adapter-moment';
-import {defineProps, ref} from 'vue';
+import {defineProps, ref, watch} from 'vue';
 import Dropdown from 'primevue/dropdown';
 import Chart from 'primevue/chart';
 import Card from "primevue/card";
-import SensorService from "@/SensorService";
+import SensorService from "@/services/SensorService";
+import SessionQueriesService from "@/services/SessionQueriesService";
 
 const props = defineProps({
-  sensorName: String
+  sensorName: String,
+  sessionQuery: Object
 });
 
 const timePeriods = [
@@ -31,6 +33,18 @@ const timePeriods = [
   {name: 'Last Day', value: 'day'},
   {name: 'Last Week', value: 'week'}
 ];
+
+watch(() => props.sessionQuery, (newValue) => {
+  if(newValue){
+    if (newValue[`last_${formatSensorName(props.sensorName)}_chart_query`] != null) {
+      const matchingPeriod = timePeriods.find(period => period.value === newValue[`last_${formatSensorName(props.sensorName)}_chart_query`]);
+      if (matchingPeriod) {
+        selectedPeriod.value = matchingPeriod;
+        updateChartData();
+      }
+    }
+  }
+})
 
 const getChartUnit = () => {
   switch (selectedPeriod.value.value) {
@@ -54,7 +68,7 @@ const getChartDisplayFormat = () => {
   }
 }
 
-const selectedPeriod = ref(timePeriods[1]); // Default to 'Last Day'
+const selectedPeriod = ref(timePeriods[0]);
 const chartData = ref({});
 const chartOptions = ref({
   scales: {
@@ -83,13 +97,6 @@ const chartOptions = ref({
 function formatDate(date) {
   let dateStr = date.toISOString();
   return dateStr.replace(dateStr.slice(dateStr.indexOf(".")), "Z");
-  // const year = date.getYear();
-  // const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
-  // const day = String(date.getDate()).padStart(2, '0');
-  // const hours = String(date.getHours()).padStart(2, '0');
-  // const minutes = String(date.getMinutes()).padStart(2, '0');
-
-  // return `${year}-${month}-${day}T${hours}:${minutes}:00Z`;
 }
 
 const sensorData = ref([]);
@@ -114,7 +121,7 @@ const fetchData = async () => {
 
     sensorData.value = response["results"].map(item => ({
       ...item,
-      timestamp:  new Date(item.timestamp)
+      timestamp: new Date(item.timestamp)
     }));
     return sensorData.value;
   } catch (error) {
@@ -168,6 +175,8 @@ async function updateChartData() {
       }
     ]
   };
+
+  SessionQueriesService.saveSessionQuery({[`last_${formatSensorName(props.sensorName)}_chart_query`]: selectedPeriod.value.value})
 }
 
 updateChartData(selectedPeriod.value); // Initial chart data setup

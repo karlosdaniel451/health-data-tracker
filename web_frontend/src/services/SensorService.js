@@ -15,6 +15,7 @@ class SensorService {
 
     async fetchSensorData(queryParams = {}) {
         try {
+            queryParams.page_size = 100000;
             const queryString = this.buildQueryString(queryParams);
             const url = queryString ? `${this.baseUrl}?${queryString}` : this.baseUrl;
 
