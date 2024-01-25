@@ -168,7 +168,7 @@ public class SensorService extends Service {
             // Check if both readings are available
             if (dataUpdated && lastTemperature != null && lastHumidity != null) {
                 if (lastNoise.compareTo(BigDecimal.ZERO) != 0) {
-                    SensorDataManager.saveSensorData(new SensorData(DateUtils.getNowDateStringInUTC(), lastTemperature, lastHumidity, lastNoise));
+                    SensorDataService.saveSensorData(new SensorData(DateUtils.getNowDateStringInUTC(), lastTemperature, lastHumidity, lastNoise));
                     stopAudioRecording();
                 }
 
@@ -309,7 +309,7 @@ public class SensorService extends Service {
             lastHumidity = humidityBD.setScale(2, RoundingMode.HALF_UP);
 
             if (lastNoise.compareTo(BigDecimal.ZERO) != 0) {
-                SensorDataManager.saveSensorData(new SensorData(DateUtils.getNowDateStringInUTC(), lastTemperature, lastHumidity, lastNoise));
+                SensorDataService.saveSensorData(new SensorData(DateUtils.getNowDateStringInUTC(), lastTemperature, lastHumidity, lastNoise));
                 stopAudioRecording();
             }
         } catch (JSONException e) {

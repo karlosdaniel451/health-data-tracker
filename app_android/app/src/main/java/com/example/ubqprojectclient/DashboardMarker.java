@@ -47,7 +47,6 @@ public class DashboardMarker extends MarkerView {
 
     @Override
     public MPPointF getOffset() {
-        // This will center the MarkerView on top of the dot
         return new MPPointF(-(getWidth() / 2f), -getHeight());
     }
 }

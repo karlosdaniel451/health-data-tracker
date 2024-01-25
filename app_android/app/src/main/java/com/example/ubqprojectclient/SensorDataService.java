@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class SensorDataManager {
+public class SensorDataService {
 
     private static final String API_URL = "http://192.168.0.166:8000/sensor-data/";
     private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -28,10 +29,10 @@ public class SensorDataManager {
     protected static boolean hasPrevious = false;
 
     public static void resetPagination() {
-        SensorDataManager.currentPage = 1;
-        SensorDataManager.totalPages = 1;
-        SensorDataManager.hasNext = false;
-        SensorDataManager.hasPrevious = false;
+        SensorDataService.currentPage = 1;
+        SensorDataService.totalPages = 1;
+        SensorDataService.hasNext = false;
+        SensorDataService.hasPrevious = false;
     }
 
     public static void saveSensorData(SensorData data) {
@@ -104,8 +105,8 @@ public class SensorDataManager {
             StringBuilder urlBuilder = new StringBuilder(API_URL);
 
             if (paginated) {
-                urlBuilder.append("?page=").append(SensorDataManager.currentPage.toString());
-                urlBuilder.append("&page_size=").append(SensorDataManager.pageSize.toString());
+                urlBuilder.append("?page=").append(SensorDataService.currentPage.toString());
+                urlBuilder.append("&page_size=").append(SensorDataService.pageSize.toString());
             } else {
                 urlBuilder.append("?page=").append("1");
                 urlBuilder.append("&page_size=").append("100000");
@@ -121,16 +122,19 @@ public class SensorDataManager {
 
             // Append other filter parameters with conditions
             if (temperature != null && temperatureCondition != null) {
+                temperature = temperature.setScale(2, RoundingMode.HALF_UP);
                 urlBuilder.append("&temperature=").append(temperature)
                         .append("&temperature_condition=").append(temperatureCondition);
             }
 
             if (humidity != null && humidityCondition != null) {
+                humidity = humidity.setScale(2, RoundingMode.HALF_UP);
                 urlBuilder.append("&humidity=").append(humidity)
                         .append("&humidity_condition=").append(humidityCondition);
             }
 
             if (noise != null && noiseCondition != null) {
+                noise = noise.setScale(2, RoundingMode.HALF_UP);
                 urlBuilder.append("&noise_level=").append(noise)
                         .append("&noise_level_condition=").append(noiseCondition);
             }
@@ -161,11 +165,11 @@ public class SensorDataManager {
             conn.disconnect();
 
             JSONObject jsonResponse = new JSONObject(response.toString());
-            SensorDataManager.hasPrevious = !jsonResponse.isNull("previous");
-            SensorDataManager.hasNext = !jsonResponse.isNull("next");
+            SensorDataService.hasPrevious = !jsonResponse.isNull("previous");
+            SensorDataService.hasNext = !jsonResponse.isNull("next");
 
             int itemCount = jsonResponse.getInt("count");
-            int pageSize = SensorDataManager.pageSize;
+            int pageSize = SensorDataService.pageSize;
             int pageCount = itemCount / pageSize;
 
             // Check if there are any remaining items on a partial page
@@ -173,7 +177,7 @@ public class SensorDataManager {
                 pageCount++;
             }
 
-            SensorDataManager.totalPages = pageCount;
+            SensorDataService.totalPages = pageCount;
             JSONArray sensorDataArray = jsonResponse.getJSONArray("results");
             for (int i = 0; i < sensorDataArray.length(); i++) {
                 JSONObject jsonSensorData = sensorDataArray.getJSONObject(i);
@@ -190,6 +194,53 @@ public class SensorDataManager {
                         BigDecimal.valueOf(jsonSensorData.getDouble("noise_level")),
                         hFrequency
                 ));
+            }
+
+
+            if (paginated) {
+                try {
+                    String sessionQueryJson = "{\"last_report_query\": \"?" + urlBuilder.toString().split("\\?")[1] + "\"}";
+
+                    // Parse the JSON string
+                    JSONObject jsonObject = new JSONObject(sessionQueryJson);
+
+                    // Get the "last_report_query" value
+                    String lastReportQuery = jsonObject.getString("last_report_query");
+
+                    // Split the query string by '&' to separate parameters
+                    String[] queryParams = lastReportQuery.split("&");
+
+                    // Create a StringBuilder to build the modified query string
+                    StringBuilder modifiedQuery = new StringBuilder();
+
+                    for (String param : queryParams) {
+                        if (!param.startsWith("page_size=")) {
+                            if (modifiedQuery.length() > 0) {
+                                modifiedQuery.append('&');
+                            }
+                            modifiedQuery.append(param);
+                        }
+                    }
+
+                    // Update the "last_report_query" value with the modified query string
+                    jsonObject.put("last_report_query", modifiedQuery.toString());
+
+                    // Convert the modified JSON object back to a JSON string
+                    String modifiedJsonString = jsonObject.toString();
+
+                    // Save the session query
+                    SessionQueriesService.saveSessionQuery(modifiedJsonString, new SessionQueriesService.Callback<String>() {
+                        @Override
+                        public void onSuccess(String result) {
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

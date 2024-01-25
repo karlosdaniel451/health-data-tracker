@@ -48,28 +48,6 @@
 
                 </LinearLayout>
 
-                <!-- Filter for Humidity -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <Spinner
-                        android:id="@+id/spinnerHumidity"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:entries="@array/filter_options_array" />
-
-                    <EditText
-                        android:id="@+id/editTextHumidity"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:hint="Humidity Value"
-                        android:inputType="numberDecimal" />
-                </LinearLayout>
-
                 <!-- Filter for Temperature -->
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -89,6 +67,28 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:hint="Temperature Value"
+                        android:inputType="numberDecimal" />
+                </LinearLayout>
+
+                <!-- Filter for Humidity -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Spinner
+                        android:id="@+id/spinnerHumidity"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:entries="@array/filter_options_array" />
+
+                    <EditText
+                        android:id="@+id/editTextHumidity"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Humidity Value"
                         android:inputType="numberDecimal" />
                 </LinearLayout>
 
