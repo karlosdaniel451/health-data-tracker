@@ -1,8 +1,10 @@
-from rest_framework import viewsets, pagination
+from rest_framework import viewsets, pagination, status
+from rest_framework.generics import get_object_or_404
 from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
 
-from .models import SensorData
-from .serializers import SensorDataSerializer
+from .models import SensorData, LastRecordedSensorData
+from .serializers import SensorDataSerializer, LastRecordedSensorDataSerializer
 from django.utils.dateparse import parse_datetime
 
 
@@ -14,8 +16,20 @@ class StandardResultsSetPagination(pagination.PageNumberPagination):
 class SensorDataViewSet(viewsets.ModelViewSet):
     queryset = SensorData.objects.all().order_by('-timestamp')
     serializer_class = SensorDataSerializer
-    renderer_classes = [JSONRenderer]  # Add this line
+    renderer_classes = [JSONRenderer]
     pagination_class = StandardResultsSetPagination
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        sensor_data_instance = serializer.instance
+        sensor_data_instance.heart_frequency = LastRecordedSensorData.objects.get(id=1).heart_frequency
+        sensor_data_instance.save()
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def get_queryset(self):
         # Retrieve query parameters
@@ -77,3 +91,25 @@ class SensorDataViewSet(viewsets.ModelViewSet):
 
     def get_http_method_names(self):
         return ['get', 'post']
+
+
+class LastRecordedSensorDataViewSet(viewsets.ModelViewSet):
+    queryset = LastRecordedSensorData.objects.all()
+    serializer_class = LastRecordedSensorDataSerializer
+    renderer_classes = [JSONRenderer]
+
+    def create(self, request, *args, **kwargs):
+        data = request.data.copy()
+
+        last_recorded_sensor_data = get_object_or_404(LastRecordedSensorData, id=1)
+        for key, value in data.items():
+            setattr(last_recorded_sensor_data, key, value)
+        last_recorded_sensor_data.save()
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def get_http_method_names(self):
+        return ['post']

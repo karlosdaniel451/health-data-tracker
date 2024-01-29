@@ -24,7 +24,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
+import java.util.TimeZone;
 
 public class ReportFragment extends Fragment {
     private FilterValues filterValues = new FilterValues();
@@ -66,7 +69,7 @@ public class ReportFragment extends Fragment {
         Button button = view.findViewById(R.id.buttonFilter);
         button.setOnClickListener(v -> {
             try {
-                SensorDataManager.resetPagination();
+                SensorDataService.resetPagination();
                 filterData(true);
             } catch (ParseException e) {
                 throw new RuntimeException(e);
@@ -78,7 +81,7 @@ public class ReportFragment extends Fragment {
 
         // Set click listeners for the next and previous page buttons
         nextPageButton.setOnClickListener(v -> {
-            SensorDataManager.currentPage++;
+            SensorDataService.currentPage++;
             try {
                 filterData(false);
             } catch (ParseException e) {
@@ -87,8 +90,8 @@ public class ReportFragment extends Fragment {
         });
 
         previousPageButton.setOnClickListener(v -> {
-            if (SensorDataManager.currentPage > 1) {
-                SensorDataManager.currentPage--;
+            if (SensorDataService.currentPage > 1) {
+                SensorDataService.currentPage--;
                 try {
                     filterData(false);
                 } catch (ParseException e) {
@@ -100,7 +103,7 @@ public class ReportFragment extends Fragment {
         Button clearFilterButton = view.findViewById(R.id.clearFilter);
         clearFilterButton.setOnClickListener(v -> {
             try {
-                SensorDataManager.resetPagination();
+                SensorDataService.resetPagination();
                 redefineFilters();
             } catch (ParseException e) {
                 throw new RuntimeException(e);
@@ -124,6 +127,13 @@ public class ReportFragment extends Fragment {
         showStartDateTimePickerButton.setOnClickListener(v -> showDateTimePickerDialog(startDateTime, showStartDateTimePickerButton));
 
         showEndDateTimePickerButton.setOnClickListener(v -> showDateTimePickerDialog(endDateTime, showEndDateTimePickerButton));
+
+        try {
+            fillFiltersDataWithSessionData();
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+
         try {
             filterData(true);
         } catch (ParseException e) {
@@ -131,6 +141,95 @@ public class ReportFragment extends Fragment {
         }
 
         return view;
+    }
+
+    private void fillFiltersDataWithSessionData() throws ParseException {
+        Bundle bundle = getArguments();
+        String lastReportQuery = bundle.getString("last_report_query", "");
+
+        if (!lastReportQuery.equals("")) {
+            if (lastReportQuery.startsWith("?")) {
+                lastReportQuery = lastReportQuery.substring(1);
+            }
+
+            String[] params = lastReportQuery.split("&");
+            Map<String, String> queryParams = new HashMap<>();
+
+            for (String param : params) {
+                String[] keyValue = param.split("=");
+                if (keyValue.length == 2) {
+                    String key = keyValue[0];
+                    String value = keyValue[1];
+                    queryParams.put(key, value);
+                }
+            }
+
+            String pageValue = queryParams.get("page");
+            if (pageValue != null) {
+                SensorDataService.currentPage = Integer.parseInt(pageValue);
+            }
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+            String startTimeValue = queryParams.get("start_date");
+            if (startTimeValue != null) {
+                sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+                java.util.Date date = sdf.parse(startTimeValue);
+                startDateTime.setTime(date);
+                startDateTime.set(Calendar.SECOND, 0);
+                String formattedDateTime = OUTPUT_DATE_FORMAT.format(startDateTime.getTime());
+                showStartDateTimePickerButton.setText(formattedDateTime);
+            }
+
+            String endTimeValue = queryParams.get("end_date");
+            if (endTimeValue != null) {
+                sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+                java.util.Date date = sdf.parse(endTimeValue);
+                endDateTime.setTime(date);
+                endDateTime.set(Calendar.SECOND, 0);
+                String formattedDateTime = OUTPUT_DATE_FORMAT.format(endDateTime.getTime());
+                showEndDateTimePickerButton.setText(formattedDateTime);
+            }
+
+            String temperatureValue = queryParams.get("temperature");
+            String temperatureCondition = queryParams.get("temperature_condition");
+            if (temperatureValue != null && temperatureCondition != null) {
+                temperatureSpinner.setSelection(getSelectionBasedOnCondition(temperatureCondition));
+                temperatureEditText.setText(temperatureValue);
+            }
+
+            String humidityValue = queryParams.get("humidity");
+            String humidityCondition = queryParams.get("humidity_condition");
+            if (humidityValue != null && humidityCondition != null) {
+                humiditySpinner.setSelection(getSelectionBasedOnCondition(humidityCondition));
+                humidityEditText.setText(humidityValue);
+            }
+
+            String noiseLevelValue = queryParams.get("noise_level");
+            String noiseLevelCondition = queryParams.get("noise_level_condition");
+            if (noiseLevelValue != null && noiseLevelCondition != null) {
+                noiseSpinner.setSelection(getSelectionBasedOnCondition(noiseLevelCondition));
+                noiseEditText.setText(noiseLevelValue);
+            }
+
+            String heartFrequencyValue = queryParams.get("heart_frequency");
+            String heartFrequencyCondition = queryParams.get("heart_frequency_condition");
+            if (heartFrequencyValue != null && heartFrequencyCondition != null) {
+                heartFrequencySpinner.setSelection(getSelectionBasedOnCondition(heartFrequencyCondition));
+                heartFrequencyEditText.setText(heartFrequencyValue);
+            }
+        }
+    }
+
+    private Integer getSelectionBasedOnCondition(String condition) {
+        switch (condition) {
+            case "eq":
+                return 1;
+            case "lt":
+                return 2;
+            default:
+                return 0;
+        }
     }
 
     private void showDateTimePickerDialog(final Calendar dateTime, Button button) {
@@ -201,7 +300,7 @@ public class ReportFragment extends Fragment {
         }
     }
 
-    private FilterValues getFilterData() {
+    private FilterValues getFilterData() throws ParseException {
         String humidity = humidityEditText.getText().toString();
         String humidityCondition = mapCondition(humiditySpinner.getSelectedItem().toString());
 
@@ -221,10 +320,24 @@ public class ReportFragment extends Fragment {
 
         String startDateTimeValue = null, endDateTimeValue = null;
         if (!showStartDateTimePickerButton.getText().toString().equals(DEFAULT_START_DATETIME_BUTTON_TEXT)) {
-            startDateTimeValue = FILTER_DATE_FORMAT.format(startDateTime.getTime());
+            SimpleDateFormat inputFormat = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                inputFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss 'GMT'XXX yyyy", Locale.ENGLISH);
+            }
+            Date date = inputFormat.parse(startDateTime.getTime().toString());
+            FILTER_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
+            startDateTimeValue = FILTER_DATE_FORMAT.format(date);
+            startDateTimeValue = startDateTimeValue.replaceFirst("\\+0000", "Z");
         }
         if (!showEndDateTimePickerButton.getText().toString().equals(DEFAULT_END_DATETIME_BUTTON_TEXT)) {
-            endDateTimeValue = FILTER_DATE_FORMAT.format(endDateTime.getTime());
+            SimpleDateFormat inputFormat = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                inputFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss 'GMT'XXX yyyy", Locale.ENGLISH);
+            }
+            Date date = inputFormat.parse(endDateTime.getTime().toString());
+            FILTER_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
+            endDateTimeValue = FILTER_DATE_FORMAT.format(date);
+            endDateTimeValue = endDateTimeValue.replaceFirst("\\+0000", "Z");
         }
 
         return new FilterValues(startDateTimeValue, endDateTimeValue, temperatureValue,
@@ -240,7 +353,7 @@ public class ReportFragment extends Fragment {
             filterValues = getFilterData();
         }
 
-        ArrayList<SensorData> sensorDataList = SensorDataManager.getSensorData(
+        ArrayList<SensorData> sensorDataList = SensorDataService.getSensorData(
                 filterValues.getStartDateTime(), filterValues.getEndDateTime(),
                 filterValues.getTemperature(), filterValues.getTemperatureCondition(),
                 filterValues.getHumidity(), filterValues.getHumidityCondition(),
@@ -248,9 +361,9 @@ public class ReportFragment extends Fragment {
                 filterValues.getHeartFrequency(), filterValues.getHeartFrequencyCondition(),
                 true);
 
-        nextPageButton.setEnabled(SensorDataManager.hasNext);
-        previousPageButton.setEnabled(SensorDataManager.hasPrevious);
-        pageNumberTextView.setText("Page " + SensorDataManager.currentPage + "/" + SensorDataManager.totalPages);
+        nextPageButton.setEnabled(SensorDataService.hasNext);
+        previousPageButton.setEnabled(SensorDataService.hasPrevious);
+        pageNumberTextView.setText("Page " + SensorDataService.currentPage + "/" + SensorDataService.totalPages);
 
         addSensorDataToTable(sensorDataList);
     }

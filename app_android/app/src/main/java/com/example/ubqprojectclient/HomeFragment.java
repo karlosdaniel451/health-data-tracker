@@ -50,16 +50,29 @@ public class HomeFragment extends Fragment {
         noiseLevelDashboard = new Dashboard("Noise Level", "dB");
         heartFrequencyDashboard = new Dashboard("Heart Frequency", "bpm");
 
+        Bundle bundle = getArguments();
+
         // Set up listeners for each spinner
-        setupChartCard(temperatureDashboard, spinnerTemperature, lineChartTemperature, "Temperature", Color.rgb(255, 70, 50));
-        setupChartCard(humidityDashboard, spinnerHumidity, lineChartHumidity, "Humidity", Color.rgb(70, 130, 180));
-        setupChartCard(noiseLevelDashboard, spinnerNoiseLevel, lineChartNoiseLevel, "Noise Level", Color.rgb(240, 200, 80));
-        setupChartCard(heartFrequencyDashboard, spinnerHeartFrequency, lineChartHeartFrequency, "Heart Frequency", Color.rgb(220, 20, 60));
+        setupChartCard(temperatureDashboard, spinnerTemperature, lineChartTemperature, "Temperature", Color.rgb(255, 70, 50), bundle.getString("last_temperature_chart_query", "hour"));
+        setupChartCard(humidityDashboard, spinnerHumidity, lineChartHumidity, "Humidity", Color.rgb(70, 130, 180), bundle.getString("last_humidity_chart_query", "hour"));
+        setupChartCard(noiseLevelDashboard, spinnerNoiseLevel, lineChartNoiseLevel, "Noise Level", Color.rgb(240, 200, 80), bundle.getString("last_noise_level_chart_query", "hour"));
+        setupChartCard(heartFrequencyDashboard, spinnerHeartFrequency, lineChartHeartFrequency, "Heart Frequency", Color.rgb(220, 20, 60), bundle.getString("last_heart_frequency_chart_query", "hour"));
 
         return view;
     }
 
-    private void setupChartCard(Dashboard dashboard, Spinner spinner, LineChart lineChart, String dashboardTitle, int color) {
+    private void setupChartCard(Dashboard dashboard, Spinner spinner, LineChart lineChart, String dashboardTitle, int color, String queryOption) {
+        switch (queryOption) {
+            case "hour":
+                spinner.setSelection(0);
+                break;
+            case "day":
+                spinner.setSelection(1);
+                break;
+            case "week":
+                spinner.setSelection(2);
+        }
+
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -89,6 +102,21 @@ public class HomeFragment extends Fragment {
 
                 DashboardMarker mv = new DashboardMarker(getContext(), dashboardTitle, R.layout.dashboard_marker);
                 lineChart.setMarker(mv);
+
+                // Construct the session query JSON in snake_case
+                String snakeCaseTitle = dashboardTitle.replaceAll("\\s+", "_").toLowerCase();
+                String sessionQueryJson = "{\"last_" + snakeCaseTitle + "_chart_query\":\"" + selectedOption.split(" ")[1] + "\"}";
+
+                // Save the session query
+                SessionQueriesService.saveSessionQuery(sessionQueryJson, new SessionQueriesService.Callback<String>() {
+                    @Override
+                    public void onSuccess(String result) {
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                    }
+                });
 
                 lineChart.invalidate();
             }
@@ -131,7 +159,7 @@ public class HomeFragment extends Fragment {
                 break;
         }
 
-        ArrayList<SensorData> sensorData = SensorDataManager.getSensorData(
+        ArrayList<SensorData> sensorData = SensorDataService.getSensorData(
                 startDateStr + "Z", endDateStr + "Z",
                 null, null,
                 null, null,

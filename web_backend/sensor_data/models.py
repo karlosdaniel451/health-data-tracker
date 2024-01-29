@@ -11,3 +11,10 @@ class SensorData(models.Model):
     def __str__(self):
         return (f"{self.timestamp} | Temp: {self.temperature} °C | Noise: {self.noise_level} dB |"
                 f" Humidity: {self.humidity}% | Heart Frequency: {self.heart_frequency}%")
+
+
+class LastRecordedSensorData(models.Model):
+    heart_frequency = models.IntegerField(blank=True, null=True)
+
+    def __str__(self):
+        return f"Heart Frequency: {self.heart_frequency}%"

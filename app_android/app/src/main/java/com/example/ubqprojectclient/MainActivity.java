@@ -8,7 +8,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -17,7 +16,12 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -30,16 +34,53 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
 
         bottomNav.setOnItemSelectedListener(item -> {
-            Fragment selectedFragment = null;
-            if (item.getItemId() == R.id.nav_home) {
-                selectedFragment = new HomeFragment();
-            } else if (item.getItemId() == R.id.nav_report) {
-                selectedFragment = new ReportFragment();
-            }
-            assert selectedFragment != null;
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, selectedFragment)
-                    .commit();
+            SessionQueriesService.fetchSessionQueries(new SessionQueriesService.Callback<String>() {
+                @Override
+                public void onSuccess(String result) {
+                    runOnUiThread(() -> {
+                        Fragment selectedFragment = null;
+                        if (item.getItemId() == R.id.nav_home) {
+                            selectedFragment = new HomeFragment();
+                        } else if (item.getItemId() == R.id.nav_report) {
+                            selectedFragment = new ReportFragment();
+                        }
+
+                        if (selectedFragment != null) {
+                            try {
+                                JSONArray jsonArray = new JSONArray(result);
+
+                                if (jsonArray.length() > 0) {
+                                    JSONObject firstObject = jsonArray.getJSONObject(0);
+
+                                    Bundle bundle = new Bundle();
+
+                                    Iterator<String> keys = firstObject.keys();
+                                    while (keys.hasNext()) {
+                                        String key = keys.next();
+                                        String value = firstObject.getString(key);
+                                        bundle.putString(key, value); // Add each key-value pair to the bundle
+                                    }
+
+                                    selectedFragment.setArguments(bundle);
+
+                                    getSupportFragmentManager().beginTransaction()
+                                            .replace(R.id.fragment_container, selectedFragment)
+                                            .commit();
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    runOnUiThread(() -> {
+                        // Handle the error, perhaps show a message to the user
+                    });
+                }
+            });
             return true;
         });
         bottomNav.setSelectedItemId(R.id.nav_home);
