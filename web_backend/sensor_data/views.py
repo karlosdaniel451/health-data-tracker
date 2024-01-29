@@ -20,12 +20,16 @@ class SensorDataViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def create(self, request, *args, **kwargs):
-        response = super().create(request, *args, **kwargs)
-        instance = self.get_object()
-        instance.heart_frequency = LastRecordedSensorData.objects.get(id=1).heart_frequency
-        instance.save()
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
 
-        return response
+        sensor_data_instance = serializer.instance
+        sensor_data_instance.heart_frequency = LastRecordedSensorData.objects.get(id=1).heart_frequency
+        sensor_data_instance.save()
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def get_queryset(self):
         # Retrieve query parameters
