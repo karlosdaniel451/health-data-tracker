@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">EnviroPulse</string>
+    <string name="dashboards">Dashboards</string>
+    <string name="data_report">Reports</string>
+    <string name="noise_data">Noise</string>
+    <string-array name="filter_options_array">
+        <item>Greater than</item>
+        <item>Equals</item>
+        <item>Lower than</item>
+    </string-array>
+    <string-array name="dashboard_options_array">
+        <item>Last hour</item>
+        <item>Last day</item>
+        <item>Last week</item>
+    </string-array>
+</resources>

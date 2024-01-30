@@ -1,0 +1,170 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".HomeFragment">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardTemperature"
+                android:layout_width="match_parent"
+                android:layout_height="350dp"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <!-- Título do Card -->
+                    <TextView
+                        android:id="@+id/titleTemperature"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Temperature measured data"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <!-- Spinner for Dropdown -->
+                    <Spinner
+                        android:id="@+id/spinnerTemperature"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginBottom="15dp"
+                        android:entries="@array/dashboard_options_array" />
+
+                    <!-- LineChart -->
+                    <com.github.mikephil.charting.charts.LineChart
+                        android:id="@+id/chartTemperature"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardHumidity"
+                android:layout_width="match_parent"
+                android:layout_height="350dp"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <!-- Título do Card -->
+                    <TextView
+                        android:id="@+id/titleHumidity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Humidity measured data"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <!-- Spinner for Dropdown -->
+                    <Spinner
+                        android:id="@+id/spinnerHumidity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginBottom="15dp"
+                        android:entries="@array/dashboard_options_array" />
+
+                    <!-- LineChart -->
+                    <com.github.mikephil.charting.charts.LineChart
+                        android:id="@+id/chartHumidity"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardNoiseLevel"
+                android:layout_width="match_parent"
+                android:layout_height="350dp"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <!-- Título do Card -->
+                    <TextView
+                        android:id="@+id/titleNoiseLevel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Noise Level measured data"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <!-- Spinner for Dropdown -->
+                    <Spinner
+                        android:id="@+id/spinnerNoiseLevel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginBottom="15dp"
+                        android:entries="@array/dashboard_options_array" />
+
+                    <!-- LineChart -->
+                    <com.github.mikephil.charting.charts.LineChart
+                        android:id="@+id/chartNoiseLevel"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardHeartFrequency"
+                android:layout_width="match_parent"
+                android:layout_height="350dp"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <!-- Título do Card -->
+                    <TextView
+                        android:id="@+id/titleHeartFrequency"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Heart Frequency measured data"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <!-- Spinner for Dropdown -->
+                    <Spinner
+                        android:id="@+id/spinnerHeartFrequency"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginBottom="15dp"
+                        android:entries="@array/dashboard_options_array" />
+
+                    <!-- LineChart -->
+                    <com.github.mikephil.charting.charts.LineChart
+                        android:id="@+id/chartHeartFrequency"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+    </ScrollView>
+</FrameLayout>

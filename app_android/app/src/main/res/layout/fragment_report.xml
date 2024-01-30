@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ReportFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardTableFilter"
+            android:layout_width="match_parent"
+            android:layout_height="330dp"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/showStartDateTimePickerButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Pick Start DateTime" />
+
+                    <Space
+                        android:layout_width="10dp"
+                        android:layout_height="30dp"/>
+
+                    <Button
+                        android:id="@+id/showEndDateTimePickerButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Pick End DateTime" />
+
+                </LinearLayout>
+
+                <!-- Filter for Temperature -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Spinner
+                        android:id="@+id/spinnerTemperature"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:entries="@array/filter_options_array" />
+
+                    <EditText
+                        android:id="@+id/editTextTemperature"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Temperature Value"
+                        android:inputType="numberDecimal" />
+                </LinearLayout>
+
+                <!-- Filter for Humidity -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Spinner
+                        android:id="@+id/spinnerHumidity"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:entries="@array/filter_options_array" />
+
+                    <EditText
+                        android:id="@+id/editTextHumidity"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Humidity Value"
+                        android:inputType="numberDecimal" />
+                </LinearLayout>
+
+                <!-- Filter for Noise -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Spinner
+                        android:id="@+id/spinnerNoise"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:entries="@array/filter_options_array" />
+
+                    <EditText
+                        android:id="@+id/editTextNoise"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Noise Level"
+                        android:inputType="numberDecimal" />
+                </LinearLayout>
+
+                <!-- Filter for Heart frequency -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Spinner
+                        android:id="@+id/spinnerHeartFrequency"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:entries="@array/filter_options_array" />
+
+                    <EditText
+                        android:id="@+id/editTextHeartFrequency"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Heart frequency"
+                        android:inputType="number" />
+                </LinearLayout>
+
+                <!-- Filter Button -->
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/clearFilter"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Clear Filters" />
+
+                    <Space
+                        android:layout_width="10dp"
+                        android:layout_height="30dp"/>
+
+                    <Button
+                        android:id="@+id/buttonFilter"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:onClick="filterDataClick"
+                        android:text="Apply Filters" />
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardTableReport"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TableLayout
+                        android:id="@+id/tableSensorData"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:stretchColumns="*">
+
+                        <!-- Table headers -->
+                        <TableRow>
+                            <TextView
+                                android:gravity="center"
+                                android:paddingRight="16dp"
+                                android:text="DateTime" />
+
+                            <TextView
+                                android:gravity="center"
+                                android:paddingRight="16dp"
+                                android:text="Temperature" />
+
+                            <TextView
+                                android:gravity="center"
+                                android:paddingRight="16dp"
+                                android:text="Humidity" />
+
+                            <TextView
+                                android:gravity="center"
+                                android:paddingRight="16dp"
+                                android:text="Noise" />
+
+                            <TextView
+                                android:gravity="center"
+                                android:text="Heart Frequency" />
+                        </TableRow>
+                    </TableLayout>
+                </HorizontalScrollView>
+                <!-- Next and Previous Page Buttons -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/previousPageButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Previous" />
+
+                    <TextView
+                        android:id="@+id/pageNumberTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        android:text=" Page X/X " />
+
+                    <Button
+                        android:id="@+id/nextPageButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Next" />
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+    </LinearLayout>
+</FrameLayout>
