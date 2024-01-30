@@ -19,7 +19,7 @@ import java.util.concurrent.Future;
 
 public class SensorDataService {
 
-    private static final String API_URL = "http://192.168.0.166:8000/sensor-data/register";
+    private static final String API_URL = "http://3.213.156.15:8000/sensor-data/register/";
     private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private static Integer pageSize = 10;
