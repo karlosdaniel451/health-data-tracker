@@ -12,7 +12,7 @@ public class SessionQueriesService {
 
     private static ExecutorService executorService = Executors.newFixedThreadPool(4);
 
-    private static final String baseURL = "http://192.168.0.166:8000/session-queries/";
+    private static final String baseURL = "http://3.213.156.15:8000/session-queries/";
 
 
     public static void saveSessionQuery(final String sessionQueryJson, final Callback<String> callback) {
