@@ -179,7 +179,7 @@ async function updateChartData() {
   SessionQueriesService.saveSessionQuery({[`last_${formatSensorName(props.sensorName)}_chart_query`]: selectedPeriod.value.value})
 }
 
-updateChartData(selectedPeriod.value); // Initial chart data setup
+updateChartData(selectedPeriod.value);
 </script>
 
 <style>

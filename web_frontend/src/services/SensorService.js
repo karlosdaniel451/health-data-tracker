@@ -1,5 +1,5 @@
 class SensorService {
-    constructor(baseUrl = 'http://127.0.0.1:8000/sensor-data/') {
+    constructor(baseUrl = 'http://127.0.0.1:8000/sensor-data/register') {
         this.baseUrl = baseUrl;
     }
 

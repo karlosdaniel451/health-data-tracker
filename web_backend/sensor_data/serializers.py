@@ -5,8 +5,8 @@ from .models import SensorData, LastRecordedSensorData
 class SensorDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = SensorData
-        fields = ['timestamp', 'temperature', 'noise_level', 'humidity']
-        read_only_fields = ['id']
+        fields = ['timestamp', 'temperature', 'noise_level', 'humidity', 'heart_frequency']
+        read_only_fields = ['id', 'heart_frequency']
 
 
 class LastRecordedSensorDataSerializer(serializers.ModelSerializer):
