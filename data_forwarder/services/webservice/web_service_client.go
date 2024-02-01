@@ -43,10 +43,9 @@ func PostMeasurement(measurement *models.Measurement) error {
 
 	request, err := http.NewRequest(
 		http.MethodPost,
-		//setup.Config.WebServiceConfig.GetBaseUrl()+"/sensor-data/",
 		fmt.Sprintf(
-			"http://%s:%d/sensor-data",
-			setup.Config.WebServiceConfig.Host, setup.Config.DigitalTwinConfig.Port,
+			"http://%s:%d/sensor-data/register/",
+			setup.Config.WebServiceConfig.Host, setup.Config.WebServiceConfig.Port,
 		),
 		requestBody,
 	)
