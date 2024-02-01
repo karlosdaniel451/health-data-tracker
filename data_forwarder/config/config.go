@@ -32,10 +32,7 @@ type WebServiceConfig struct {
 	Port int
 }
 
-func NewWebServiceConfig(
-	host string, port int,
-) *WebServiceConfig {
-
+func NewWebServiceConfig(host string, port int) *WebServiceConfig {
 	return &WebServiceConfig{
 		Host: host,
 		Port: port,

@@ -10,7 +10,7 @@ import (
 
 const (
 	envFilenameDev  = "../.env_dev"
-	secretsFilename = "../.secrets"
+	secretsFilename = ".secrets"
 )
 
 func main() {
@@ -33,5 +33,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	slog.Info("application started successfully")
+	//slog.Info("application started successfully")
 }

@@ -1,11 +1,11 @@
 package webservice
 
 import (
+	"bytes"
 	"data_forwarder/cmd/setup"
 	"data_forwarder/models"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 )
 
@@ -36,21 +36,25 @@ func PostMeasurement(measurement *models.Measurement) error {
 		return fmt.Errorf("measurement should not be nil")
 	}
 
-	var requestBody io.Reader
-	if err := json.NewDecoder(requestBody).Decode(measurement); err != nil {
+	requestBody := new(bytes.Buffer)
+	if err := json.NewEncoder(requestBody).Encode(measurement); err != nil {
 		return fmt.Errorf("error when serializing measurement: %s", err)
 	}
 
-	baseUrl := setup.Config.WebServiceConfig.GetBaseUrl()
-
 	request, err := http.NewRequest(
 		http.MethodPost,
-		baseUrl+"/sensor-data/",
+		//setup.Config.WebServiceConfig.GetBaseUrl()+"/sensor-data/",
+		fmt.Sprintf(
+			"http://%s:%d/sensor-data",
+			setup.Config.WebServiceConfig.Host, setup.Config.DigitalTwinConfig.Port,
+		),
 		requestBody,
 	)
 	if err != nil {
 		return fmt.Errorf("error when creating request: %s", err)
 	}
+
+	request.Header.Set("content-type", "application/json")
 
 	response, err := http.DefaultClient.Do(request)
 	if err != nil {

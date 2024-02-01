@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"data_forwarder/models"
+	"data_forwarder/services/digitaltwin"
 	"data_forwarder/services/webservice"
 	"encoding/json"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -26,6 +27,17 @@ func MessageHandler(_ mqtt.Client, message mqtt.Message) {
 	}
 	slog.Info("measurement message serialized", "measurement", measurement.String())
 
+	if err := digitaltwin.UpdateDigitalTwinState(&measurement); err != nil {
+		slog.Error(
+			"error when updating digital twin state",
+			"cause", err,
+		)
+		return
+	}
+	slog.Info(
+		"digital twin state updated successfully",
+	)
+
 	if err := webservice.PostMeasurement(&measurement); err != nil {
 		slog.Error(
 			"error when sending measurement to web backend",
@@ -33,4 +45,8 @@ func MessageHandler(_ mqtt.Client, message mqtt.Message) {
 		)
 		return
 	}
+	slog.Info(
+		"measurement sent to web backend",
+		"measurement", measurement.String(),
+	)
 }

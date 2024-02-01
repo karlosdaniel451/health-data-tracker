@@ -22,6 +22,9 @@ func Setup(envFilename string) (*config.Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error when setting up env variables: %s", err)
 	}
+
+	Config = appConfig
+
 	return appConfig, nil
 }
 
@@ -29,8 +32,6 @@ func setupEnvVariables(envFilename string) (*config.Config, error) {
 	if err := godotenv.Load(envFilename); err != nil {
 		return nil, fmt.Errorf("error when loading env file: %s", err)
 	}
-
-	fmt.Println(os.Getenv("DITTO_HOST"))
 
 	dittoPort, err := strconv.Atoi(os.Getenv("DITTO_PORT"))
 	if err != nil {
@@ -51,8 +52,8 @@ func setupEnvVariables(envFilename string) (*config.Config, error) {
 	}
 
 	mqttClientConfig := mqtt.NewClientOptions().
-		AddBroker(os.Getenv(fmt.Sprintf(
-			"%s:%d", os.Getenv("BROKER_HOST"), mqttBrokerPort)),
+		AddBroker(fmt.Sprintf(
+			"tcp://%s:%d", os.Getenv("BROKER_HOST"), mqttBrokerPort),
 		).
 		SetOrderMatters(false)
 

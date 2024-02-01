@@ -3,7 +3,6 @@ package app
 import (
 	"data_forwarder/config"
 	"data_forwarder/services/broker"
-	mqtthandlers "data_forwarder/services/broker/handlers"
 	"fmt"
 	"github.com/eclipse/ditto-clients-golang"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -30,18 +29,17 @@ func (app App) Start() error {
 
 	app.mqttClient = mqttClient
 
-	token := (*mqttClient).Subscribe(
-		"enviro_pulse",
-		0,
-		mqtthandlers.MessageHandler,
-	)
-
-	if token.Wait() && token.Error() != nil {
-		//slog.Error("error when subscribing to topic", "cause", token.Error())
-		return fmt.Errorf("error when subscribing to topic: %s", token.Error())
+	if err := broker.Consume(mqttClient, "enviro_pulse", 0); err != nil {
+		slog.Error(
+			"error when subscribing to mqtt topic",
+			"topic", "enviro_pulse",
+			"cause", err,
+		)
+		return err
 	}
 	slog.Info(
-		fmt.Sprintf("subscribed to mqtt topic '%s' successfully", "enviro_pulse_dev"),
+		"subscribed to mqtt topic successfully",
+		"topic", "enviro_pulse",
 	)
 
 	// Goroutine wait indefinitely.
