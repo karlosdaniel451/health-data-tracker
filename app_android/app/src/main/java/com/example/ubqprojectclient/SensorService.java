@@ -26,6 +26,10 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
+import com.hivemq.client.mqtt.datatypes.MqttQos;
+import com.hivemq.client.mqtt.mqtt5.Mqtt5BlockingClient;
+import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -36,7 +40,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Random;
+import java.util.UUID;
 
 public class SensorService extends Service {
     private SensorManager sensorManager;
@@ -54,8 +60,11 @@ public class SensorService extends Service {
     private LocationListener locationListener;
     private double currentLatitude = 0.0;
     private double currentLongitude = 0.0;
-    private static final long NOTIFICATION_INTERVAL = 600000; // 10 minutes in milliseconds
     private static final int NOTIFICATION_ID = 1;
+
+    private static final String mqttHost = "broker.hivemq.com";
+    private static final String topic = "enviro_pulse_notifications";
+    private Mqtt5BlockingClient client;
 
     @Nullable
     @Override
@@ -85,6 +94,8 @@ public class SensorService extends Service {
 
         temperatureSensor = sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
         humiditySensor = sensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
+        setupMqttClient();
+
     }
 
     @Override
@@ -92,6 +103,49 @@ public class SensorService extends Service {
         startForeground(NOTIFICATION_ID, getNotification());
         handler.post(collectSensorDataRunnable);
         return START_STICKY;
+    }
+
+    private void setupMqttClient() {
+        client = Mqtt5Client.builder()
+                .identifier(UUID.randomUUID().toString())
+                .serverHost(mqttHost)
+                .buildBlocking();
+
+        client.connect();
+
+        client.toAsync().subscribeWith()
+                .topicFilter(topic)
+                .qos(MqttQos.AT_LEAST_ONCE)
+                .callback(msg -> {
+                    String receivedMessage = new String(msg.getPayloadAsBytes(), StandardCharsets.UTF_8);
+                    try {
+                        JSONObject json = new JSONObject(receivedMessage);
+                        String title = json.getString("title");
+                        String message = json.getString("message");
+
+                        sendNotification(title, message);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }).send();
+    }
+
+    public void sendNotification(String title, String message) {
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        // Create a notification channel for Android Oreo and above
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel("sensorAlerts", "Sensor Alerts", NotificationManager.IMPORTANCE_DEFAULT);
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "sensorAlerts")
+                .setContentTitle(title)
+                .setContentText(message)
+                .setSmallIcon(R.drawable.baseline_device_thermostat_144) // replace with your icon
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        notificationManager.notify(new Random().nextInt(), builder.build());
     }
 
     private Notification getNotification() {

@@ -110,9 +110,6 @@ public class MainActivity extends AppCompatActivity {
         if (!permissionsNeeded.isEmpty()) {
             ActivityCompat.requestPermissions(this, permissionsNeeded.toArray(new String[0]), MULTIPLE_PERMISSIONS_REQUEST_CODE);
         } else {
-            Intent serviceNotificationIntent = new Intent(this, NotificationService.class);
-            ContextCompat.startForegroundService(this, serviceNotificationIntent);
-
             Intent serviceIntent = new Intent(this, SensorService.class);
             ContextCompat.startForegroundService(this, serviceIntent);
         }
@@ -142,9 +139,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (allPermissionsGranted) {
-                Intent serviceNotificationIntent = new Intent(this, NotificationService.class);
-                ContextCompat.startForegroundService(this, serviceNotificationIntent);
-
                 Intent serviceIntent = new Intent(this, SensorService.class);
                 ContextCompat.startForegroundService(this, serviceIntent);
             } else {
