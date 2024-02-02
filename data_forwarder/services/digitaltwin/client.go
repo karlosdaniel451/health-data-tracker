@@ -35,7 +35,7 @@ func UpdateDigitalTwinState(measurement *models.Measurement) error {
 			}
 		}
 		`,
-		measurement.Timestamp.String(), *measurement.Temperature, *measurement.NoiseLevel,
+		*measurement.Timestamp, *measurement.Temperature, *measurement.NoiseLevel,
 		*measurement.Humidity,
 	)
 	requestBody := bytes.NewReader([]byte(requestBodyContent))
