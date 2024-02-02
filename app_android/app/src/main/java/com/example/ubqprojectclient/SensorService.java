@@ -133,24 +133,6 @@ public class SensorService extends Service {
         handler.post(collectSensorDataRunnable);
     }
 
-    public void sendNotification(String title, String message) {
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        // Create a notification channel for Android Oreo and above
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel("sensorAlerts", "Sensor Alerts", NotificationManager.IMPORTANCE_DEFAULT);
-            notificationManager.createNotificationChannel(channel);
-        }
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "sensorAlerts")
-                .setContentTitle(title)
-                .setContentText(message)
-                .setSmallIcon(R.drawable.baseline_device_thermostat_144) // replace with your icon
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-
-        notificationManager.notify(new Random().nextInt(), builder.build());
-    }
-
     private final SensorEventListener sensorEventListener = new SensorEventListener() {
         @Override
         public void onSensorChanged(SensorEvent event) {

@@ -26,6 +26,7 @@
         android:theme="@style/Theme.BasicAndroidMQTTClient"
         tools:targetApi="31">
         <service android:name=".SensorService" android:foregroundServiceType="microphone|dataSync" />
+        <service android:name=".NotificationService" android:foregroundServiceType="dataSync"/>
         <activity
             android:name=".MainActivity"
             android:exported="true">

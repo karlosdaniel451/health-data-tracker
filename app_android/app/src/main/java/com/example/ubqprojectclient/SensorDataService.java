@@ -1,17 +1,22 @@
 package com.example.ubqprojectclient;
 
+import com.hivemq.client.mqtt.datatypes.MqttQos;
+import com.hivemq.client.mqtt.mqtt5.Mqtt5BlockingClient;
+import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
+
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -19,6 +24,8 @@ import java.util.concurrent.Future;
 
 public class SensorDataService {
 
+    private static final String mqttHost = "broker.hivemq.com";
+    private static final String sendSensorDataTopic = "enviro_pulse";
     private static final String API_URL = "http://3.213.156.15:8000/sensor-data/register/";
     private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -39,31 +46,35 @@ public class SensorDataService {
         if (data.getNoiseLevel().compareTo(BigDecimal.ZERO) == 0) {
             return;
         }
-        executorService.execute(() -> saveSensorDataRequest(data));
+        executorService.execute(() -> {
+            try {
+                saveSensorDataToMQTT(data);
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
-    private static void saveSensorDataRequest(SensorData data) {
+    private static void saveSensorDataToMQTT(SensorData data) throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put("timestamp", data.getTimestamp());
+        json.put("temperature", data.getTemperature());
+        json.put("humidity", data.getHumidity());
+        json.put("noise_level", data.getNoiseLevel());
+
         try {
-            URL url = new URL(API_URL);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setDoOutput(true);
+            Mqtt5BlockingClient client = Mqtt5Client.builder()
+                    .identifier(UUID.randomUUID().toString())
+                    .serverHost(mqttHost)
+                    .buildBlocking();
 
-            JSONObject json = new JSONObject();
-
-            json.put("timestamp", data.getTimestamp());
-            json.put("temperature", data.getTemperature());
-            json.put("humidity", data.getHumidity());
-            json.put("noise_level", data.getNoiseLevel());
-
-            try (OutputStream os = conn.getOutputStream()) {
-                os.write(json.toString().getBytes());
-                os.flush();
-            }
-
-            conn.getResponseCode(); // You can handle the response code here
-            conn.disconnect();
+            client.connect();
+            client.publishWith()
+                    .topic(sendSensorDataTopic)
+                    .qos(MqttQos.AT_LEAST_ONCE)
+                    .payload(json.toString().getBytes())
+                    .send();
+            client.disconnect();
         } catch (Exception e) {
             e.printStackTrace();
         }
