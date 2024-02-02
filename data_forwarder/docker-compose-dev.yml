@@ -1,0 +1,57 @@
+version: "3.8"
+
+networks:
+  network:
+
+volumes:
+  postgresdata:
+
+services:
+  data_forwarder:
+    container_name: "data_forwarder"
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    environment:
+      - APP_PORT=${APP_PORT}
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+    depends_on:
+      - broker
+      - timescaledb
+    command:
+      - /bin/sh -c "/usr/bin/psql postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT} -c 'drop database if exists ${DB_NAME}' && /usr/bin/psql postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT} -c 'create database ${DB_NAME}'"
+      - /bin/sh -c "/usr/bin/psql -U ${DB_USER} -p ${DB_PORT} -d ${DB_NAME} -w ${DB_PASSWORD} -f ddl.sql"
+    networks:
+      - network
+  broker:
+    container_name: hivemq-ce
+    image: hivemq/hivemq-ce:latest
+    ports:
+      - "${BROKER_PORT}:1883"
+    networks:
+      - network
+  timescaledb:
+    container_name: timescaledb
+    #    image: timescale/timescaledb-ha:pg14-latest
+    image: timescale/timescaledb:latest-pg14
+    ports:
+      - "${TIMESCALEDB_PORT}:5432"
+    environment:
+      TIMESCALEDB_TELEMETRY: off
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    networks:
+      - network
+    volumes:
+      - postgresdata:/var/lib/postgresql/data
+#  mqtt-cli: # For data collection simulations.
+#    container_name: mqtt-cli
+#    image: hivemq/mqtt-cli
+#    networks:
+#      - network
+#    depends_on:
+#      - broker

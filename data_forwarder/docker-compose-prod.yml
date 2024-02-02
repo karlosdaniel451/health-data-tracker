@@ -1,0 +1,8 @@
+version: "3.8"
+
+services:
+  data_forwarder:
+    container_name: "data_forwarder"
+    build:
+      context: ./
+      dockerfile: Dockerfile

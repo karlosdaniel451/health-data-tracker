@@ -1,5 +1,5 @@
 class SessionQueriesService {
-    constructor(baseUrl = 'http://127.0.0.1:8000/session-queries/') {
+    constructor(baseUrl = 'http://3.213.156.15:8000/session-queries/') {
         this.baseUrl = baseUrl;
     }
 
