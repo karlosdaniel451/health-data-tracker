@@ -32,16 +32,11 @@ func UpdateDigitalTwinState(measurement *models.Measurement) error {
 				"properties": {
 					"value": %.2f
 				}
-			},
-			"heart_frequency": {
-				"properties": {
-					"value": %d
-				}
 			}
 		}
 		`,
 		measurement.Timestamp.String(), *measurement.Temperature, *measurement.NoiseLevel,
-		*measurement.Humidity, *measurement.HeartFrequency,
+		*measurement.Humidity,
 	)
 	requestBody := bytes.NewReader([]byte(requestBodyContent))
 
